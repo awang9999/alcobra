@@ -71,7 +71,7 @@ typedef struct _Matrix
 Matrix *Matrix__constructor(int r, int c);
 Matrix *Matrix__identity(int length);
 Matrix *Matrix__clone(Matrix *m);
-Matrix *Matrix__fromArr(int r, int c, double *vals);
+Matrix *Matrix__fromArr(int r, int c, double *vals, int arr_size);
 bool Matrix__destroy(Matrix *m);
 
 /* Matrix manipulators */

@@ -29,7 +29,7 @@ $(EXE): $(OBJ)
 # Objects depend on these Libraries
 $(OBJ): $(INCL)
 
-test: matrix.o $(TEST_DIR)/tests.c
+test: matrix.o special_math.o $(TEST_DIR)/tests.c
 	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $^ $(TEST_INC_DIR) $(TEST_LIBS)
 	@$(TEST_EXE) || true
 

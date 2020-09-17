@@ -66,11 +66,24 @@ Matrix *Matrix__clone(Matrix *m)
     return copy;
 }
 
-Matrix *Matrix__fromArr(int r, int c, double *vals)
+Matrix *Matrix__fromArr(int r, int c, double *vals, int arr_size)
 {
+    if (arr_size != r * c)
+    {
+        printf("Cannot form matrix from array because the provided array does not match specified dimensions.");
+        return NULL;
+    }
+
     Matrix *ret = Matrix__constructor(r, c);
+
+    for (int i = 0; i < arr_size; i++)
+    {
+        (ret->data)[i] = vals[i];
+    }
+
     return ret;
 }
+
 bool Matrix__destroy(Matrix *m)
 {
     free(m->data);
@@ -85,29 +98,68 @@ bool Matrix__row_swap(Matrix *m, int a, int b)
     printf("WARNING: Matrix__row_swap is unimplemented\n");
     return false;
 }
-bool Matrix__scalar_multiply(Matrix *m, double f)
+bool Matrix__scalar_multiply(Matrix *m, double factor)
 {
-    //TODO
-    printf("WARNING: Matrix__scalar_multiply is unimplemented\n");
-    return false;
+    for (int r = 0; r < m->rows; r++)
+    {
+        for (int c = 0; c < m->cols; c++)
+        {
+            double x = (m->get(m, r, c)) * factor;
+            m->set(m, r, c, x);
+        }
+    }
+    return true;
 }
 bool Matrix__row_scalar_multiply(Matrix *m, int row, double factor)
 {
-    //TODO
-    printf("WARNING: Matrix__row_scalar_multiply is unimplemented\n");
-    return false;
+    for (int c = 0; c < (m->cols); c++)
+    {
+        double x = (m->get(m, row, c)) * factor;
+        m->set(m, row, c, x);
+    }
+    return true;
 }
+/*
+    m1 is modified such that every element of m1 becomes the sum
+    of every element of m1 with the corresponding element of m2.
+*/
 bool Matrix__add(Matrix *m1, Matrix *m2)
 {
-    //TODO
-    printf("WARNING: Matrix__add is unimplemented\n");
-    return false;
+    if (m1->rows != m2->rows || m1->cols != m2->cols)
+    {
+        return false;
+    }
+
+    for (int r = 0; r < m1->rows; r++)
+    {
+        for (int c = 0; c < m1->cols; c++)
+        {
+            double x = (m1->get(m1, r, c)) + (m2->get(m2, r, c));
+            m1->set(m1, r, c, x);
+        }
+    }
+    return true;
 }
+/*
+    m1 is modified such that every element of m1 becomes the difference
+    of every element of m1 with the corresponding element of m2.
+*/
 bool Matrix__subtract(Matrix *m1, Matrix *m2)
 {
-    //TODO
-    printf("WARNING: Matrix__subtract is unimplemented\n");
-    return false;
+    if (m1->rows != m2->rows || m1->cols != m2->cols)
+    {
+        return false;
+    }
+
+    for (int r = 0; r < m1->rows; r++)
+    {
+        for (int c = 0; c < m1->cols; c++)
+        {
+            double x = (m1->get(m1, r, c)) - (m2->get(m2, r, c));
+            m1->set(m1, r, c, x);
+        }
+    }
+    return true;
 }
 
 /* Matrix-derived values */
@@ -133,9 +185,14 @@ Matrix *Matrix__invert(Matrix *m)
 }
 Matrix *Matrix__transpose(Matrix *m)
 {
-    //TODO
-    printf("WARNING: Matrix__transpose is unimplemented\n");
-    return NULL;
+    Matrix *result = Matrix__clone(m);
+    for (int r = 0; r < (m->rows); r++)
+    {
+        for (int c = 0; c < (m->cols); c++)
+        {
+            result->set(result, c, r, m->get(m, r, c));
+        }
+    }
 }
 
 Matrix *Matrix__multiply(Matrix *m1, Matrix *m2)

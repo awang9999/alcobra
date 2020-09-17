@@ -53,7 +53,12 @@ Matrix *Matrix__constructor(int r, int c)
 
 Matrix *Matrix__identity(int length)
 {
-    return Matrix__constructor(length, length);
+    Matrix *result = Matrix__constructor(length, length);
+    for (int i = 0; i < length; i++)
+    {
+        result->set(result, i, i, 1.0);
+    }
+    return result;
 }
 
 Matrix *Matrix__clone(Matrix *m)
@@ -70,7 +75,7 @@ Matrix *Matrix__fromArr(int r, int c, double *vals, int arr_size)
 {
     if (arr_size != r * c)
     {
-        printf("Cannot form matrix from array because the provided array does not match specified dimensions.");
+        printf("Cannot form matrix from array because the provided array does not match specified dimensions.\n");
         return NULL;
     }
 
@@ -94,9 +99,22 @@ bool Matrix__destroy(Matrix *m)
 /* Matrix manipulators */
 bool Matrix__row_swap(Matrix *m, int a, int b)
 {
-    //TODO
-    printf("WARNING: Matrix__row_swap is unimplemented\n");
-    return false;
+    if (a < 0 || b < 0 || a > m->rows || b > m->rows)
+    {
+        printf("Error (row_swap): rows are out of bounds.\n");
+        printf("m:");
+        m->size(m);
+        return false;
+    }
+
+    for (int i = 0; i < m->cols; i++)
+    {
+        double tmp1 = m->get(m, a, i);
+        double tmp2 = m->get(m, b, i);
+        m->set(m, a, i, tmp2);
+        m->set(m, a, i, tmp1);
+    }
+    return true;
 }
 bool Matrix__scalar_multiply(Matrix *m, double factor)
 {
@@ -127,6 +145,11 @@ bool Matrix__add(Matrix *m1, Matrix *m2)
 {
     if (m1->rows != m2->rows || m1->cols != m2->cols)
     {
+        printf("Error (add): Matrices m1 and m2 have mismatched dimensions.\n");
+        printf("m1:");
+        m1->size(m1);
+        printf("m2:");
+        m2->size(m2);
         return false;
     }
 
@@ -148,6 +171,11 @@ bool Matrix__subtract(Matrix *m1, Matrix *m2)
 {
     if (m1->rows != m2->rows || m1->cols != m2->cols)
     {
+        printf("Error (subtract): Matrices m1 and m2 have mismatched dimensions.\n");
+        printf("m1:");
+        m1->size(m1);
+        printf("m2:");
+        m2->size(m2);
         return false;
     }
 
@@ -166,13 +194,23 @@ bool Matrix__subtract(Matrix *m1, Matrix *m2)
 double Matrix__determinant(Matrix *m)
 {
     //TODO
-    printf("WARNING: Matrix__determinant is unimplemented\n");
+    printf("WARNING: Matrix__determinant is unimplemented.\n");
     return 0;
 }
 bool Matrix__zero_vector(Matrix *m)
 {
-    //TODO
-    printf("WARNING: Matrix__zero_vector is unimplemented\n");
+    for (int i = 0; i < m->cols; i++)
+    {
+        double sum = 0.0;
+        for (int j = 0; j < m->rows; j++)
+        {
+            sum += m->get(m, j, i);
+        }
+        if (double_equals(sum, 0.0))
+        {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -180,9 +218,10 @@ bool Matrix__zero_vector(Matrix *m)
 Matrix *Matrix__invert(Matrix *m)
 {
     //TODO
-    printf("WARNING: Matrix__invert is unimplemented\n");
+    printf("WARNING: Matrix__invert is unimplemented.\n");
     return NULL;
 }
+
 Matrix *Matrix__transpose(Matrix *m)
 {
     Matrix *result = Matrix__clone(m);
@@ -193,28 +232,83 @@ Matrix *Matrix__transpose(Matrix *m)
             result->set(result, c, r, m->get(m, r, c));
         }
     }
+    return result;
 }
 
 Matrix *Matrix__multiply(Matrix *m1, Matrix *m2)
 {
-    //TODO
-    printf("WARNING: Matrix__multiply is unimplemented\n");
-    return NULL;
+    if (m1->cols != m2->rows)
+    {
+        printf("Error (multiply): Matrices m1 and m2 have mismatched dimensions.\n");
+        printf("m1:");
+        m1->size(m1);
+        printf("m2:");
+        m2->size(m2);
+        return NULL;
+    }
+
+    Matrix *result = Matrix__constructor(m1->rows, m2->cols);
+
+    for (int i = 0; i < result->rows; i++)
+    {
+        for (int j = 0; j < result->cols; j++)
+        {
+            double sum = 0.0;
+            for (int k = 0; k < (m1->cols); k++)
+            {
+                sum += (m1->get(m1, i, k)) + (m2->get(m2, k, j));
+            }
+            result->set(result, i, j, sum);
+        }
+    }
+    return result;
 }
+
 Matrix *Matrix__hadamard(Matrix *m1, Matrix *m2)
 {
-    //TODO
-    printf("WARNING: Matrix__hadamard is unimplemented\n");
-    return NULL;
+    if (m1->rows != m2->rows || m1->cols != m2->cols)
+    {
+        printf("Error (hadamard): Matrices m1 and m2 have mismatched dimensions.\n");
+        printf("m1:");
+        m1->size(m1);
+        printf("m2:");
+        m2->size(m2);
+        return NULL;
+    }
+
+    for (int r = 0; r < m1->rows; r++)
+    {
+        for (int c = 0; c < m1->cols; c++)
+        {
+            double x = (m1->get(m1, r, c)) * (m2->get(m2, r, c));
+            m1->set(m1, r, c, x);
+        }
+    }
+    return m1;
 }
 
 /* Mutators and accessors */
 double Matrix__get(Matrix *m, int r, int c)
 {
+    if (r < 0 || c < 0 || r > m->rows || c > m->cols)
+    {
+        printf("Error (get): row or column is out of bounds.\n");
+        printf("m:");
+        m->size(m);
+        return 0.0;
+    }
     return m->data[r * (m->cols) + c];
 }
+
 bool Matrix__set(Matrix *m, int r, int c, double val)
 {
+    if (r < 0 || c < 0 || r > m->rows || c > m->cols)
+    {
+        printf("Error (set): row or column is out of bounds.\n");
+        printf("m:");
+        m->size(m);
+        return false;
+    }
     m->data[r * (m->cols) + c] = val;
     return true;
 }

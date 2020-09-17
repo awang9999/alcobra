@@ -5,6 +5,11 @@ OBJ    = $(SRC:.c=.o)
 LIBS   = -lm
 EXE    = alcobra
 
+TEST_DIR = ./tests
+TEST_INC_DIR =
+TEST_LIBS = -lm
+TEST_EXE = ./tests/test
+
 # Compiler, Linker Defines
 CC      = /usr/bin/gcc
 CFLAGS  = -std=c99 -Wall -O2
@@ -24,13 +29,18 @@ $(EXE): $(OBJ)
 # Objects depend on these Libraries
 $(OBJ): $(INCL)
 
+test: matrix.o $(TEST_DIR)/tests.c
+	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $^ $(TEST_INC_DIR) $(TEST_LIBS)
+	@$(TEST_EXE) || true
+
 # Create a gdb/dbx Capable Executable with DEBUG flags turned on
 debug:
 	$(CC) $(CFDEBUG) $(SRC)
 
 # Clean Up Objects, Exectuables, Dumps out of source directory
 clean:
-	$(RM) $(OBJ) $(EXE) core a.out 
+	$(RM) $(OBJ) $(EXE) core a.out
+	rm -f $(TEST_DIR)/*_test
 
 run:
 	@./$(EXE) || true

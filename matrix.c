@@ -112,7 +112,7 @@ bool Matrix__row_swap(Matrix *m, int a, int b)
         double tmp1 = m->get(m, a, i);
         double tmp2 = m->get(m, b, i);
         m->set(m, a, i, tmp2);
-        m->set(m, a, i, tmp1);
+        m->set(m, b, i, tmp1);
     }
     return true;
 }
@@ -224,7 +224,7 @@ Matrix *Matrix__invert(Matrix *m)
 
 Matrix *Matrix__transpose(Matrix *m)
 {
-    Matrix *result = Matrix__clone(m);
+    Matrix *result = Matrix__constructor(m->cols, m->rows);
     for (int r = 0; r < (m->rows); r++)
     {
         for (int c = 0; c < (m->cols); c++)
@@ -256,7 +256,7 @@ Matrix *Matrix__multiply(Matrix *m1, Matrix *m2)
             double sum = 0.0;
             for (int k = 0; k < (m1->cols); k++)
             {
-                sum += (m1->get(m1, i, k)) + (m2->get(m2, k, j));
+                sum += (m1->get(m1, i, k)) * (m2->get(m2, k, j));
             }
             result->set(result, i, j, sum);
         }
@@ -330,7 +330,7 @@ bool Matrix__print(Matrix *m)
 
         for (int j = 0; j < m->cols; j++)
         {
-            printf(" %f ", m->get(m, i, j));
+            printf(" %.4lf ", m->get(m, i, j));
         }
 
         if (i == (m->rows) - 1)

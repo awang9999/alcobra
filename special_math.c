@@ -1,7 +1,7 @@
 #include "special_math.h"
 
 /* simple math functions on doubles */
-static const double EPSILON = 0.00000001;
+static const double EPSILON = 0.0000000000001;
 
 double abs_val(double x)
 {
